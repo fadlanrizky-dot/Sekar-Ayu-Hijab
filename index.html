@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sekarayu Hijab - Supply Chain System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8F9FA; }
+        .bg-gold { background-color: #C5A059; }
+        .text-gold { color: #C5A059; }
+        .border-gold { border-color: #C5A059; }
+        .sidebar-active { background-color: #C5A059; color: white !important; box-shadow: 0 4px 12px rgba(197, 160, 89, 0.2); }
+        .status-pill { padding: 3px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+        .hide { display: none; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-slate-700">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col p-6 shrink-0 overflow-y-auto">
+        <!-- Logo Brand -->
+        <div class="flex items-center space-x-3 mb-8 px-2">
+            <div class="w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100 font-bold text-gold text-lg">A</div>
+            <div>
+                <h1 class="font-extrabold text-xs text-gray-800 leading-none">Sekarayu Hijab</h1>
+                <p class="text-[9px] text-gray-400 mt-1 font-medium tracking-wider uppercase">Supply Chain System</p>
+            </div>
+        </div>
+
+        <!-- Menu Navigasi -->
+        <nav class="flex-1 space-y-1">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 p-3 rounded-xl transition text-gray-500 hover:bg-gray-50 sidebar-active">
+                <i class="fa-solid fa-chart-pie w-4"></i> <span class="text-xs font-bold">Dashboard</span>
+            </button>
+            
+            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-6 mb-2 ml-3">Modul Utama</p>
+            
+            <button onclick="switchTab('p2p')" id="nav-p2p" class="w-full flex items-center space-x-3 p-3 rounded-xl transition text-gray-500 hover:bg-gray-50">
+                <i class="fa-solid fa-cart-shopping w-4"></i> <span class="text-xs font-bold">P2P - Pengadaan</span>
+            </button>
+            <button onclick="switchTab('o2c')" id="nav-o2c" class="w-full flex items-center space-x-3 p-3 text-gray-500 hover:bg-gray-50 rounded-xl transition">
+                <i class="fa-solid fa-wallet w-4"></i> <span class="text-xs font-bold">O2C - Penjualan</span>
+            </button>
+            <button onclick="switchTab('r2r')" id="nav-r2r" class="w-full flex items-center space-x-3 p-3 text-gray-500 hover:bg-gray-50 rounded-xl transition">
+                <i class="fa-solid fa-file-invoice-dollar w-4"></i> <span class="text-xs font-bold">R2R - Laporan</span>
+            </button>
+
+            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-6 mb-2 ml-3">Inventory & System</p>
+            <button onclick="switchTab('stok')" id="nav-stok" class="w-full flex items-center space-x-3 p-3 text-gray-500 hover:bg-gray-50 rounded-xl transition">
+                <i class="fa-solid fa-box-open w-4"></i> <span class="text-xs font-bold">Stok</span>
+            </button>
+            <button onclick="switchTab('pengaturan')" id="nav-pengaturan" class="w-full flex items-center space-x-3 p-3 text-gray-500 hover:bg-gray-50 rounded-xl transition">
+                <i class="fa-solid fa-sliders w-4"></i> <span class="text-xs font-bold">Pengaturan</span>
+            </button>
+        </nav>
+
+        <!-- Logout -->
+        <button class="flex items-center space-x-3 p-3 text-red-500 text-xs font-bold mt-8 hover:bg-red-50 rounded-xl transition">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Logout</span>
+        </button>
+    </aside>
+
+    <!-- MAIN APP AREA -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        <!-- TOPBAR -->
+        <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0">
+            <div>
+                <h2 id="header-title" class="text-base font-bold text-gray-900">Dashboard Overview</h2>
+                <p id="header-desc" class="text-[10px] text-gray-400 font-medium">Ringkasan performa operasional Sekarayu Hijab</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative cursor-pointer">
+                    <i class="fa-regular fa-bell text-gray-400 text-lg"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold border border-white">3</span>
+                </div>
+                <div class="flex items-center space-x-3 border-l pl-4">
+                    <div class="text-right leading-none">
+                        <p class="text-xs font-bold text-gray-900">Admin</p>
+                        <p class="text-[9px] text-gray-400 mt-0.5">Owner</p>
+                    </div>
+                    <div class="w-8 h-8 bg-gold/10 border border-gold/20 rounded-full flex items-center justify-center text-gold font-bold text-xs">A</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENTS -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            
+            <!-- 1. DASHBOARD OVERVIEW -->
+            <div id="tab-dashboard" class="space-y-6">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Pendapatan</p>
+                        <h4 class="text-xl font-black mt-1 text-slate-800">Rp 18.750.000</h4>
+                        <p class="text-[9px] text-green-500 font-bold mt-1.5"><i class="fa-solid fa-arrow-up"></i> 12.8% vs Apr 2025</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Pembelian (PO)</p>
+                        <h4 class="text-xl font-black mt-1 text-slate-800">Rp 15.550.000</h4>
+                        <p class="text-[9px] text-gray-400 font-medium mt-1.5">Bulan ini (Mei 2025)</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Laba Bersih</p>
+                        <h4 class="text-xl font-black mt-1 text-blue-600">Rp 6.750.000</h4>
+                        <p class="text-[9px] text-blue-500 font-bold mt-1.5"><i class="fa-solid fa-arrow-up"></i> 22.4% peningkatan</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Volume Penjualan</p>
+                        <h4 class="text-xl font-black mt-1 text-slate-800">152 Order</h4>
+                        <p class="text-[9px] text-gray-400 font-medium mt-1.5">E-Commerce & Konsinyasi</p>
+                    </div>
+                </div>
+
+                <!-- Grafik Area -->
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-xs text-gray-700 mb-4">Tren Penjualan Mingguan (Mei 2025)</h3>
+                        <div class="h-56"><canvas id="salesChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-xs text-gray-700 mb-4">Proporsi Channel Penjualan</h3>
+                        <div class="h-56"><canvas id="channelChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. P2P - PROCUREMENT (WhatsApp Image 2026-04-27 at 13.16.17_2.jpeg) -->
+            <div id="tab-p2p" class="hide space-y-6">
+                <!-- Alur Proses Stepper -->
+                <div class="bg-white p-5 rounded-xl border border-gray-100 flex justify-between items-center text-center relative overflow-hidden">
+                    <div class="absolute h-0.5 bg-gray-100 top-10 left-16 right-16 z-0"></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-gold text-white rounded-xl flex items-center justify-center mx-auto mb-2 border border-gold shadow-sm shadow-gold/20"><i class="fa-solid fa-paste text-xs"></i></div><p class="text-[10px] font-bold">1. Perencanaan Kebutuhan</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-file-invoice text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">2. Purchase Order (PO)</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-truck text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">3. Pengiriman Bahan</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-scissors text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">4. Penerimaan & Produksi</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-warehouse text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">5. Barang Masuk (Gudang)</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-credit-card text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">6. Pembayaran ke Supplier</p></div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <!-- PO Table -->
+                    <div class="col-span-2 bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-xs text-gray-800">Purchase Order Terbaru</h3>
+                            <button class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition">+ Buat PO Baru</button>
+                        </div>
+                        <table class="w-full text-xs text-left">
+                            <thead>
+                                <tr class="text-gray-400 border-b border-gray-50 text-[10px] font-bold uppercase"><th class="pb-3">No. PO</th><th class="pb-3">Supplier</th><th class="pb-3">Tanggal</th><th class="pb-3">Total</th><th class="pb-3">Status</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50 font-medium">
+                                <tr><td class="py-3 font-bold">PO-250523-001</td><td class="py-3 text-gray-500">Kain Ceria Textile</td><td class="py-3 text-gray-400">23 Mei 2025</td><td class="py-3 font-bold">Rp 2.500.000</td><td><span class="bg-amber-100 text-amber-700 status-pill">Dikirim</span></td></tr>
+                                <tr><td class="py-3 font-bold">PO-250523-002</td><td class="py-3 text-gray-500">Sumber Hijab Fabric</td><td class="py-3 text-gray-400">20 Mei 2025</td><td class="py-3 font-bold">Rp 1.750.000</td><td><span class="bg-blue-100 text-blue-700 status-pill">Diterima</span></td></tr>
+                                <tr><td class="py-3 font-bold">PO-250518-003</td><td class="py-3 text-gray-500">Indah Textile</td><td class="py-3 text-gray-400">18 Mei 2025</td><td class="py-3 font-bold">Rp 3.200.000</td><td><span class="bg-yellow-100 text-yellow-700 status-pill">Diproses</span></td></tr>
+                                <tr><td class="py-3 font-bold">PO-250515-004</td><td class="py-3 text-gray-500">Kain Ceria Textile</td><td class="py-3 text-gray-400">16 Mei 2025</td><td class="py-3 font-bold">Rp 2.100.000</td><td><span class="bg-green-100 text-green-700 status-pill">Selesai</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Ringkasan P2P Card -->
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
+                        <h3 class="font-bold text-xs text-gray-800">Ringkasan P2P</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-3 bg-gray-50/50 rounded-lg border border-gray-100"><p class="text-[9px] font-bold text-gray-400 uppercase">Total PO Bulan Ini</p><h5 class="text-base font-black mt-1">12 Order</h5></div>
+                            <div class="p-3 bg-gray-50/50 rounded-lg border border-gray-100"><p class="text-[9px] font-bold text-gray-400 uppercase">Total Pembelian</p><h5 class="text-base font-black mt-1">Rp 15.550.000</h5></div>
+                            <div class="p-3 bg-gray-50/50 rounded-lg border border-gray-100"><p class="text-[9px] font-bold text-gray-400 uppercase">PO Diterima</p><h5 class="text-base font-black mt-1">8 Order</h5></div>
+                            <div class="p-3 bg-gray-50/50 rounded-lg border border-gray-100"><p class="text-[9px] font-bold text-gray-400 uppercase">Menunggu Bayar</p><h5 class="text-base font-black mt-1 text-amber-600">Rp 3.850.000</h5></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bagian Bawah: Penerimaan & Tagihan -->
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-xs text-gray-800 mb-3">Penerimaan Barang (Gudang)</h3>
+                        <table class="w-full text-xs text-left">
+                            <thead><tr class="text-gray-400 border-b border-gray-50 text-[10px] font-bold"><th class="pb-2">No. Penerimaan</th><th class="pb-2">PO</th><th class="pb-2">Supplier</th><th class="pb-2">Status</th></tr></thead>
+                            <tbody class="divide-y font-medium">
+                                <tr><td class="py-2.5 font-bold">RCV-250523-001</td><td>PO-250523-002</td><td>Sumber Hijab Fabric</td><td><span class="bg-amber-100 text-amber-700 status-pill">Dikirim</span></td></tr>
+                                <tr><td class="py-2.5 font-bold">RCV-250518-002</td><td>PO-250518-003</td><td>Indah Textile</td><td><span class="bg-green-100 text-green-700 status-pill">Selesai</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-xs text-gray-800 mb-3">Tagihan & Pembayaran</h3>
+                        <table class="w-full text-xs text-left">
+                            <thead><tr class="text-gray-400 border-b border-gray-50 text-[10px] font-bold"><th class="pb-2">No. Invoice</th><th class="pb-2">Supplier</th><th class="pb-2">Total</th><th class="pb-2">Status</th></tr></thead>
+                            <tbody class="divide-y font-medium">
+                                <tr><td class="py-2.5 font-bold">INV-250523-001</td><td>Kain Ceria Textile</td><td class="font-bold">Rp 2.500.000</td><td><span class="bg-red-100 text-red-700 status-pill">Belum Bayar</span></td></tr>
+                                <tr><td class="py-2.5 font-bold">INV-250522-002</td><td>Sumber Hijab Fabric</td><td class="font-bold">Rp 1.750.000</td><td><span class="bg-green-100 text-green-700 status-pill">Dibayar</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. O2C - SALES (WhatsApp Image 2026-04-27 at 13.16.18_2.jpeg) -->
+            <div id="tab-o2c" class="hide space-y-6">
+                <!-- Stepper Alur -->
+                <div class="bg-white p-5 rounded-xl border border-gray-100 flex justify-between items-center text-center relative overflow-hidden">
+                    <div class="absolute h-0.5 bg-gray-100 top-10 left-16 right-16 z-0"></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-gold text-white rounded-xl flex items-center justify-center mx-auto mb-2 border border-gold"><i class="fa-solid fa-basket-shopping text-xs"></i></div><p class="text-[10px] font-bold">1. Order Masuk</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-user-check text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">2. Validasi Pesanan</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-box text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">3. Proses Packing</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-paper-plane text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">4. Pengiriman</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-cash-register text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">5. Pembayaran</p></div>
+                    <div class="z-10 flex-1"><div class="w-9 h-9 bg-white text-gray-400 border border-gray-200 rounded-xl flex items-center justify-center mx-auto mb-2"><i class="fa-solid fa-vault text-xs"></i></div><p class="text-[10px] font-semibold text-gray-400">6. Penerimaan Dana</p></div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-6">
+                    <!-- Pesanan Masuk Table -->
+                    <div class="col-span-8 bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-xs text-gray-800 mb-4">Pesanan Masuk (Mei 2025)</h3>
+                        <table class="w-full text-xs text-left">
+                            <thead>
+                                <tr class="text-gray-400 border-b border-gray-50 text-[10px] font-bold uppercase"><th class="pb-2">Inv. Order</th><th class="pb-2">Channel</th><th class="pb-2">Customer</th><th class="pb-2">Total</th><th class="pb-2">Status</th></tr>
+                            </thead>
+                            <tbody class="divide-y font-medium">
+                                <tr><td class="py-3 font-bold text-slate-800">INV/SHP/250223/001</td><td><i class="fa-solid fa-bag-shopping text-orange-500 mr-1"></i> Shopee</td><td>Siti Aisyah</td><td class="font-bold">Rp 125.000</td><td><span class="bg-amber-100 text-amber-700 status-pill">Menunggu</span></td></tr>
+                                <tr><td class="py-3 font-bold text-slate-800">INV/TT/250525/002</td><td><i class="fa-brands fa-tiktok mr-1"></i> TikTok Shop</td><td>Nadia Putri</td><td class="font-bold">Rp 85.000</td><td><span class="bg-blue-100 text-blue-700 status-pill">Packing</span></td></tr>
+                                <tr><td class="py-3 font-bold text-slate-800">INV/SHP/250223/003</td><td><i class="fa-solid fa-bag-shopping text-orange-500 mr-1"></i> Shopee</td><td>Dewi Lestari</td><td class="font-bold">Rp 175.000</td><td><span class="bg-amber-100 text-amber-700 status-pill">Dikirim</span></td></tr>
+                                <tr><td class="py-3 font-bold text-slate-800">KNS/250222/004</td><td><i class="fa-solid fa-shop text-purple-500 mr-1"></i> Toko Konsinyasi</td><td>Toko Melati</td><td class="font-bold">-</td><td><span class="bg-green-100 text-green-700 status-pill">Selesai</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Detail Pesanan & Ringkasan O2C -->
+                    <div class="col-span-4 space-y-6">
+                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-3">
+                            <h3 class="font-bold text-xs text-gray-800 border-b pb-2">Detail Pesanan Terbaru</h3>
+                            <div class="text-[11px] space-y-2 font-medium">
+                                <div class="flex justify-between"><span class="text-gray-400">Customer:</span><span class="font-bold">Siti Aisyah</span></div>
+                                <div class="flex justify-between"><span class="text-gray-400">Alamat:</span><span class="text-right">Jl. Melati No.12, Depok</span></div>
+                                <div class="flex justify-between border-t pt-2"><span class="text-gray-400">Produk:</span><span>Hijab Voal Premium (1 pcs)</span></div>
+                                <div class="flex justify-between font-bold text-gold text-xs"><span>Total:</span><span>Rp 125.000</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                            <h3 class="font-bold text-xs text-gray-800 mb-3">Ringkasan O2C</h3>
+                            <div class="space-y-2 text-[11px] font-bold">
+                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span>Total Pesanan</span><span class="text-slate-800 text-xs">152 Order</span></div>
+                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg"><span>Total Omzet</span><span class="text-xs text-green-600">Rp 18.750.000</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. R2R - REPORTING (WhatsApp Image 2026-04-27 at 13.16.18 (1)_2.jpeg) -->
+            <div id="tab-r2r" class="hide space-y-6">
+                <!-- Baris Atas Ringkasan Finansial -->
+                <div class="grid grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center"><p class="text-[9px] font-bold text-gray-400 uppercase">Total Pendapatan</p><h5 class="text-sm font-black text-slate-800 mt-1">Rp 18.750.000</h5></div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center"><p class="text-[9px] font-bold text-gray-400 uppercase">Harga Pokok (HPP)</p><h5 class="text-sm font-black text-red-500 mt-1">Rp 9.850.000</h5></div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center"><p class="text-[9px] font-bold text-gray-400 uppercase">Laba Kotor</p><h5 class="text-sm font-black text-amber-600 mt-1">Rp 8.900.000</h5></div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center"><p class="text-[9px] font-bold text-gray-400 uppercase">Beban Operasional</p><h5 class="text-sm font-black text-slate-500 mt-1">Rp 2.150.000</h5></div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center"><p class="text-[9px] font-bold text-gray-400 uppercase">Laba Bersih</p><h5 class="text-sm font-black text-blue-600 mt-1">Rp 6.750.000</h5></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Laporan Laba Rugi -->
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-xs text-gray-800 border-b pb-3 mb-3">Laporan Laba Rugi (Mei 2025)</h3>
+                        <div class="space-y-3 text-xs font-semibold">
+                            <div class="flex justify-between"><span>Pendapatan Operasional</span><span class="text-slate-800">18.750.000</span></div>
+                            <div class="flex justify-between text-red-500"><span>Harga Pokok Penjualan (HPP)</span><span>(9.850.000)</span></div>
+                            <div class="flex justify-between border-t border-dashed pt-2 font-bold"><span>Laba Kotor</span><span class="text-amber-600">8.900.000</span></div>
+                            <div class="flex justify-between text-slate-400"><span>Beban Umum & Operasional</span><span>(2.150.000)</span></div>
+                            <div class="flex justify-between border-t pt-3 font-black text-sm text-blue-600"><span>Laba Bersih</span><span>6.750.000</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Ringkasan Jurnal -->
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                        <h3 class="font-bold text-xs text-gray-800 mb-3">Ringkasan Jurnal Terbaru</h3>
+                        <div class="space-y-2 text-[11px] font-medium">
+                            <div class="flex justify-between p-2.5 bg-gray-50 rounded-lg"><div><p class="font-bold text-slate-800">Penjualan Shopee</p><p class="text-[9px] text-gray-400">23/05/2025</p></div><span class="font-bold text-green-600">Debet: Rp 9.850.000</span></div>
+                            <div class="flex justify-between p-2.5 bg-gray-50 rounded-lg"><div><p class="font-bold text-slate-800">Pembelian Bahan Kain</p><p class="text-[9px] text-gray-400">22/05/2025</p></div><span class="font-bold text-red-500">Kredit: Rp 2.500.000</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. STOK MANAGEMENT -->
+            <div id="tab-stok" class="hide space-y-6">
+                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-xs text-gray-800">Laporan Manajemen Stok Terkini</h3>
+                        <span class="text-[10px] text-gray-400 font-bold">Update Terakhir: 23 Mei 2025 10:30</span>
+                    </div>
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
+                            <tr><th class="p-3">Nama Produk</th><th class="p-3 text-center">Stok Tersedia</th><th class="p-3 text-right">Total Nilai Stok (Rp)</th></tr>
+                        </thead>
+                        <tbody class="divide-y font-medium">
+                            <tr><td class="p-3 font-bold text-slate-800">Hijab Segi Empat Voal Premium</td><td class="p-3 text-center">158 Pcs</td><td class="p-3 text-right font-bold">Rp 2.520.000</td></tr>
+                            <tr><td class="p-3 font-bold text-slate-800">Hijab Pashmina Diamond</td><td class="p-3 text-center">98 Pcs</td><td class="p-3 text-right font-bold">Rp 2.450.000</td></tr>
+                            <tr><td class="p-3 font-bold text-slate-800">Hijab Segi Empat Ceruty</td><td class="p-3 text-center">78 Pcs</td><td class="p-3 text-right font-bold">Rp 1.425.000</td></tr>
+                            <tr><td class="p-3 font-bold text-slate-800">Hijab Pashmina Plisket</td><td class="p-3 text-center text-red-500 font-black">60 Pcs</td><td class="p-3 text-right font-bold">Rp 1.200.000</td></tr>
+                            <tr class="bg-gray-50/50 font-bold text-slate-900"><td class="p-3">Total Akumulasi Nilai</td><td class="p-3 text-center">394 Pcs</td><td class="p-3 text-right text-gold text-sm font-black">Rp 7.595.000</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. PENGATURAN SYSTEM -->
+            <div id="tab-pengaturan" class="hide max-w-xl mx-auto">
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                    <div class="border-b pb-3"><h3 class="font-bold text-sm text-gray-800">Pengaturan Identitas Aplikasi</h3><p class="text-[10px] text-gray-400">Kelola konfigurasi nama aplikasi dan hak akses utama</p></div>
+                    <div class="space-y-4">
+                        <div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Nama Perusahaan / Aplikasi</label><input type="text" value="Sekarayu Hijab" class="w-full p-2.5 bg-gray-50 border border-gray-200 font-semibold rounded-lg text-xs outline-none focus:border-gold transition"></div>
+                        <div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Email Penanggung Jawab</label><input type="email" value="admin.owner@sekarayu.com" class="w-full p-2.5 bg-gray-50 border border-gray-200 font-semibold rounded-lg text-xs outline-none focus:border-gold transition"></div>
+                        <div><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1.5">Role Level</label><input type="text" value="Owner / Administrator" readonly class="w-full p-2.5 bg-gray-100 border border-gray-200 text-gray-400 font-semibold rounded-lg text-xs cursor-not-allowed"></div>
+                        <button class="w-full bg-gold hover:bg-amber-600 text-white p-3 rounded-xl font-bold text-xs mt-2 transition shadow-md shadow-gold/10">Simpan Seluruh Perubahan</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Logika Perpindahan Menu Tab Sidebar
+        function switchTab(tabId) {
+            const tabs = ['dashboard', 'p2p', 'o2c', 'r2r', 'stok', 'pengaturan'];
+            tabs.forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hide');
+                document.getElementById('nav-' + t).classList.remove('sidebar-active');
+            });
+
+            document.getElementById('tab-' + tabId).classList.remove('hide');
+            document.getElementById('nav-' + tabId).classList.add('sidebar-active');
+
+            // Perubahan Teks Header Topbar Dinamis
+            const headers = {
+                'dashboard': ['Dashboard Overview', 'Ringkasan performa operasional Sekarayu Hijab'],
+                'p2p': ['Procure to Pay (P2P)', 'Alur Pengadaan hingga Pembayaran ke Supplier'],
+                'o2c': ['Order to Cash (O2C)', 'Alur Penjualan hingga Penerimaan Dana Publik'],
+                'r2r': ['Record to Report (R2R)', 'Pencatatan Finansial hingga Pelaporan Neraca'],
+                'stok': ['Manajemen Inventori & Stok', 'Ketersediaan kuantitas riil produk gudang'],
+                'pengaturan': ['Pengaturan Aplikasi', 'Konfigurasi global identitas system supply chain']
+            };
+            document.getElementById('header-title').innerText = headers[tabId][0];
+            document.getElementById('header-desc').innerText = headers[tabId][1];
+        }
+
+        // Script Load Grafik Otomatis sewaktu Dokumen Siap
+        window.onload = function() {
+            // 1. Grafik Penjualan Mingguan (Line Chart)
+            const ctxSales = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctxSales, {
+                type: 'line',
+                data: {
+                    labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'],
+                    datasets: [{
+                        label: 'Omzet Penjualan (Rp)',
+                        data: [3800000, 5400000, 4200000, 5350000],
+                        borderColor: '#C5A059',
+                        backgroundColor: 'rgba(197, 160, 89, 0.08)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 3.5
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // 2. Grafik Distribusi Channel (Doughnut Chart)
+            const ctxChannel = document.getElementById('channelChart').getContext('2d');
+            new Chart(ctxChannel, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Shopee (52.2%)', 'TikTok Shop (34.4%)', 'Toko Konsinyasi (13.4%)'],
+                    datasets: [{
+                        data: [9850000, 6450000, 2450000],
+                        backgroundColor: ['#C5A059', '#334155', '#94A3B8'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10, weight: 'bold' } } } } }
+            });
+        };
+    </script>
+</body>
+</html>
